@@ -46,8 +46,8 @@ public class Main extends JFrame
 			
 			//Parameter Values
 			int SquareSize = SIZE / board.length;
-			static Bike[] bikes = new Bike[3];
-			static AI[] computer = new AI[3];
+			static Bike[] bikes = new Bike[4];
+			static AI[] computer = new AI[4];
 			boolean keyPressed = false;
 			PriorityQueue<Event> eventSimulator = new PriorityQueue<Event>();
 			
@@ -59,42 +59,55 @@ public class Main extends JFrame
 					if(i==0)
 					{
 						bikes[i] = new Bike(new Coord(3, 72), "Blue", "Light Blue", board);
-						bikes[i].humanControled = false;
+						bikes[i].humanControled = true;
 						bikes[i].move = new Coord(0,-1);
 						eventSimulator.add(new Event(i, "Move", 0));
 						bikes[i].speed = 30;
 						
 						//Level 1 intelligence
-						computer[i] = new AI(bikes, board, i,1);
-						computer[i].speed = 31;
-						eventSimulator.add(new Event(i, "Think", 0));
+//						computer[i] = new AI(bikes, board, i,1);
+//						computer[i].speed = 31;
+//						eventSimulator.add(new Event(i, "Think", 0));
 					}
 					if(i==1)
 					{
-						bikes[i] = new Bike(new Coord(45, 3), "Red", "Orange", board);
+						bikes[i] = new Bike(new Coord(72, 3), "Pink", "Magenta", board);
+						bikes[i].humanControled = true;
+						bikes[i].move = new Coord(0,-1);
+						eventSimulator.add(new Event(i, "Move", 0));
+						bikes[i].speed = 30;
+						
+						computer[i] = new AI(bikes, board, i,20);
+						computer[i].speed = 15;
+						eventSimulator.add(new Event(i, "Think", 0));
+					}
+					if(i==2)
+					{
+						bikes[i] = new Bike(new Coord(3, 3), "Red", "Orange", board);
 						bikes[i].humanControled = false;
 						bikes[i].move = new Coord(0,1);
 						eventSimulator.add(new Event(i, "Move", 0));
 						bikes[i].speed = 30;
 						
-						//Level 1 intelligence
-						computer[i] = new AI(bikes, board, i,2);
+						//Level 2 intelligence
+						computer[i] = new AI(bikes, board, i,20);
 						computer[i].speed = 31;
 						eventSimulator.add(new Event(i, "Think", 0));
 						
 					}
-					if(i==2)
+					if(i==3)
 					{
-						bikes[i] = new Bike(new Coord(72, 74), "Orange", "Grey", board);
+						bikes[i] = new Bike(new Coord(72, 72), "Orange", "Grey", board);
 						bikes[i].humanControled = false;
 						eventSimulator.add(new Event(i, "Move", 0));
+						bikes[i].speed = 30;
 						
 						//Level 2 intelligence
-						computer[i] = new AI(bikes, board, i,3);
-						computer[i].speed = 31;
+						computer[i] = new AI(bikes, board, i,20);
+						computer[i].speed = 45;
 						eventSimulator.add(new Event(i, "Think", 0));
 						
-						bikes[i].speed = 30;
+						
 					}
 				}
 				
@@ -113,12 +126,14 @@ public class Main extends JFrame
 						if(e.desc.equalsIgnoreCase("Move"))
 						{
 							//System.out.println("MOVED. Tag " + e.tag );
+							if(computer[e.tag] != null)
+								computer[e.tag].MakeDescision();
 							boolean moved = b.Move();
 							if(moved)
 							{
 								eventSimulator.add(new Event(e.tag, e.desc, e.timeStamp + (101- b.speed)));
-								if(b.color.equalsIgnoreCase("Orange"))
-									System.out.println("Move Event added, new TimeStamp = " +  (e.timeStamp + (101- b.speed)));
+//								if(b.color.equalsIgnoreCase("Orange"))
+//									System.out.println("Move Event added, new TimeStamp = " +  (e.timeStamp + (101- b.speed)));
 							}
 							else
 							{
@@ -135,7 +150,7 @@ public class Main extends JFrame
 							//System.out.println("Pulled event think ");
 							if(bikes[e.tag] != null)
 							{
-								computer[e.tag].MakeDescision();
+								computer[e.tag].addThinkPoints();
 								//computer[e.tag].updateBike(bikes);
 								
 								e.timeStamp += (101 - computer[e.tag].speed);
@@ -254,6 +269,10 @@ public class Main extends JFrame
 				//System.out.println(color);
 				if(color.equalsIgnoreCase("OPEN"))
 					return Color.BLACK;
+				if(color.equalsIgnoreCase("Pink"))
+					return Color.PINK;
+				if(color.equalsIgnoreCase("Magenta"))
+					return Color.MAGENTA;
 				if(color.equalsIgnoreCase("Grey"))
 					return Color.GRAY;
 				if(color.equalsIgnoreCase("Blue"))

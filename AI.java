@@ -6,16 +6,19 @@ public class AI
 	static Bike[] bikes;
 	int tag; 
 	int speed = 1;
-	int intelligence = 0;
+	int randomNess = 20;
+	
+	//A new Concept...
+	int thinkPoints = 0;
 	
 	//Stored Direction to move; 
 	Coord[] directions = new Coord[4];
-	public AI(Bike[] bikes, Space[][] board, int tag, int intelligence)
+	public AI(Bike[] bikes, Space[][] board, int tag, int randonness)
 	{
 		this.bikes = bikes;
 		this.board = board;
 		this.tag = tag;
-		this.intelligence = intelligence;
+		this.randomNess = randomNess;
 		
 		directions[0] = new Coord(0,-1); //North
 		directions[1] = new Coord(1,0); //East
@@ -29,19 +32,26 @@ public class AI
 		this.bikes = bikes;
 	}
 	
+	public void addThinkPoints()
+	{
+		this.thinkPoints += 5;
+	}
+	
 	public void MakeDescision()
 	{
 		 Bike changing = bikes[tag];
 		 Coord orignalMove = changing.move;
-		 
-		 int rand = (int) (Math.random() * 20);
-		 if(rand == 0)
+		 int rand = (int) (Math.random() * randomNess);
+		 if(rand == 1)
 		 {
 			 System.out.println("Making Random Move");
 			 makeRandomMove();
 		 }
 		 
-		 
+		 if(thinkPoints > 10)
+		 {
+			 
+		 }
 		 int newX = changing.pos.x + changing.move.x;
 		 int newY = changing.pos.y + changing.move.y;
 	 
@@ -49,19 +59,38 @@ public class AI
 		 {
 			 System.out.println("Avoiding collision, currently at " + newX + " " + newY);
 			 changing.move = orignalMove;
-			 if(intelligence == 1)
-				 avoidCollision();
-			 if(intelligence == 2)
-				 avoidCollisionSimple();
-			 if(intelligence == 3)
+			 
+			 if(thinkPoints >= 15)
+			 {
 				 avoidCollisionOpenSpaceSimple();
-				 
+				 thinkPoints -= 15;
+			 } 
+			else if(thinkPoints >= 10)
+			{
+				avoidCollisionSimple();
+				thinkPoints -= 10;
+			}
+			else if(thinkPoints >= 5)
+			{
+				avoidCollision();
+				thinkPoints -= 5;
+			}
+			else
+			{
+				makeRandomMove();
+			}
 		 }
 	}
+		//Maybe have a cut off open space based on "snapshot" vector 
+		//Movement of other players. 
+	
+	
+	
 	
 		//Calculates which direction gives the most open space (open squares)
 		//based on the current mapping. Has no prediction of opponents movement.
 		//or understanding of the usability of space. 
+		//Cost 15 "Think Points
 		public boolean avoidCollisionOpenSpaceSimple()
 		{
 			Bike changing = bikes[tag];
@@ -105,7 +134,8 @@ public class AI
 
 
 	//Just takes a linear line, to see which direction has the farthest distance
-	//to the next Collision. Has no 2D awareness.  
+	//to the next Collision. Has no 2D awareness. 
+	//Cost 10 "Think Points"
 	public boolean avoidCollisionSimple()
 	{
 		Bike changing = bikes[tag];
@@ -127,7 +157,7 @@ public class AI
 				     newY += directions[i].y;
 				     tempDistance ++ ;
 				}
-				System.out.println("Direction " + i + " has a distance of " + tempDistance );
+				//System.out.println("Direction " + i + " has a distance of " + tempDistance );
 				if(tempDistance > maxDistance)
 				{
 					maxDistance = tempDistance;
@@ -153,7 +183,8 @@ public class AI
 	}
 	
 	
-	
+	//Simple avoid collision, moves anywhere
+	//Cost 5 "Think Points"
 	public boolean avoidCollision()
 	{
 		Bike changing = bikes[tag];
@@ -184,7 +215,8 @@ public class AI
 		//System.out.println("Changing move to " + rand) ;
 	}
 	
-	
+	//Makes Random Move
+	//Cost 0 "Think Points"
 	public void makeRandomMove()
 	{
 		int rand = (int) (Math.random() * 4);
